@@ -4,6 +4,7 @@ from __future__ import print_function
 import json
 import sys
 import pprint
+import argparse
 
 
 class Colors:
@@ -16,8 +17,16 @@ class Colors:
 
 
 class MinionParser:
-    STATUS_FAIL = '{}[ FAIL ]{}'.format(Colors.FAIL, Colors.END)
-    STATUS_OK = '{}[  OK  ]{}'.format(Colors.OK, Colors.END)
+    NO_COLORS = False
+    STATUS_OK = 'OK'
+    STATUS_WARNING = 'WARNING'
+    STATUS_FAIL = 'FAIL'
+
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--no-colors', action='store_true')
+        args = parser.parse_args()
+        self.NO_COLORS = args.no_colors
 
     def read_stdin(self):
         for line in sys.stdin:
@@ -25,7 +34,7 @@ class MinionParser:
                 line_json = json.loads(line)
                 result = self.parse_response(line_json)
                 self.print_result(result)
-            elif line.startswith('[DEBUG]') or line.startswith('Executing job with jid'):
+            elif line.startswith('[DEBUG') or line.startswith('[WARNING') or line.startswith('Executing job with jid'):
                 print(line, end='')
 
     @staticmethod
@@ -54,7 +63,7 @@ class MinionParser:
                     'message': details['changes']['stderr']
                 })
                 # following commands will always fail,
-                # with "requisite failed"
+                # with "prerequisite failed"
                 break
 
         return {
@@ -66,15 +75,33 @@ class MinionParser:
 
     def print_result(self, result):
         status = self.STATUS_FAIL
-
         if result['success']:
             status = self.STATUS_OK
 
         duration_minutes = round((result['duration'] / (1000 * 60)), 1)
-        print('- {}: {} ({} min)'.format(result['host'], status, duration_minutes))
+        output = '{} ({} min)'.format(result['host'], duration_minutes)
 
         for error in result['errors']:
-            print('{}  Reason:\n  {}\n  {}{}\n'.format(Colors.FAIL, error['command'], error['message'], Colors.END))
+            output += '\nReason:\n{}\n{}\n'.format(error['command'], error['message'])
+
+        self.log(output, status)
+
+    def log(self, message, message_type):
+        color_start = getattr(Colors,message_type)
+        color_end = Colors.END
+        if self.NO_COLORS == True:
+            color_start = ''
+            color_end = ''
+
+        if message_type == self.STATUS_OK:
+            message_prefix = '{}[  OK  ]{}'
+        elif message_type == self.STATUS_WARNING:
+            message_prefix = '{}[ FAIL ]{}'
+        elif message_type == self.STATUS_FAIL:
+            message_prefix = '{}[ FAIL ]{}'
+
+        message_prefix = message_prefix.format(color_start, color_end)
+        print('{} {}'.format(message_prefix, message))
 
     @staticmethod
     def is_json(data):
@@ -88,3 +115,4 @@ class MinionParser:
 if __name__ == '__main__':
     parser = MinionParser()
     parser.read_stdin()
+
