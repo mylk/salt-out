@@ -23,19 +23,26 @@ class MinionParser:
     STATUS_FAIL = 'FAIL'
 
     def __init__(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--no-colors', action='store_true')
-        args = parser.parse_args()
+        arg_parser = argparse.ArgumentParser()
+        arg_parser.add_argument('--no-colors', action='store_true')
+        args = arg_parser.parse_args()
         self.NO_COLORS = args.no_colors
 
     def read_stdin(self):
+        has_errors = False
         for line in sys.stdin:
             if self.is_json(line):
                 line_json = json.loads(line)
                 result = self.parse_response(line_json)
                 self.print_result(result)
+
+                if len(result['errors']) > 0:
+                    has_errors = True
             elif line.startswith('[DEBUG') or line.startswith('[WARNING') or line.startswith('Executing job with jid'):
                 print(line, end='')
+
+        if has_errors:
+            exit(1)
 
     @staticmethod
     def parse_response(response):
@@ -43,7 +50,7 @@ class MinionParser:
         duration = 0
         errors = []
 
-        # elements in resonse are not ordered.
+        # elements in response are not ordered.
         # so, loop to detect the commands element
         elements = response.items()
         for key, value in elements:
@@ -87,9 +94,9 @@ class MinionParser:
         self.log(output, status)
 
     def log(self, message, message_type):
-        color_start = getattr(Colors,message_type)
+        color_start = getattr(Colors, message_type)
         color_end = Colors.END
-        if self.NO_COLORS == True:
+        if self.NO_COLORS:
             color_start = ''
             color_end = ''
 
