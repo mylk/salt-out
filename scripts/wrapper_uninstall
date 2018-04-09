@@ -1,0 +1,16 @@
+#! /bin/sh
+
+DIR_INSTALLED="/usr/local/bin"
+
+if [[ "root" != `whoami` ]]; then
+    echo "Please execute using the sudo command."
+    exit 1
+fi
+
+if [[ ! -f "${DIR_INSTALLED}/saltoutw" ]]; then
+    echo "salt-out wrapper not installed."
+    exit 1
+fi
+
+rm ${DIR_INSTALLED}/saltoutw
+

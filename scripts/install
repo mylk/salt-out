@@ -10,6 +10,5 @@ fi
 
 cd "$(dirname "$0")"
 
-cp $DIR_SRC/saltout.py $DIR_DEST/saltout && \
-chmod +x $DIR_DEST/saltout
+cp $DIR_SRC/saltout.py $DIR_DEST/saltout
 

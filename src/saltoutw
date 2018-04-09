@@ -1,0 +1,4 @@
+#! /bin/bash
+
+salt --verbose --out=json --out-indent=-1 $* | saltout --no-colors
+

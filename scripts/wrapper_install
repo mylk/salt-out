@@ -1,0 +1,19 @@
+#! /bin/sh
+
+DIR_SRC="../src"
+DIR_DEST="/usr/local/bin"
+
+if [[ "root" != `whoami` ]]; then
+    echo "Please execute using the sudo command."
+    exit 1;
+fi
+
+if [[ ! -f "${DIR_DEST}/saltout" ]]; then
+    echo "salt-out should be installed first. Please, execute \"sudo make install\" while in the project's directory."
+    exit 1
+fi
+
+cd "$(dirname "${0}")"
+
+cp ${DIR_SRC}/saltoutw ${DIR_DEST}/
+
