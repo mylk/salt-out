@@ -1,10 +1,10 @@
 #!/usr/bin/python2
 
 from __future__ import print_function
+
+import argparse
 import json
 import sys
-import pprint
-import argparse
 
 
 class Colors:
@@ -122,4 +122,3 @@ class MinionParser:
 if __name__ == '__main__':
     parser = MinionParser()
     parser.read_stdin()
-
