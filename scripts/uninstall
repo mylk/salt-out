@@ -1,0 +1,16 @@
+#! /bin/sh
+
+DIR_DEST="/usr/local/bin"
+
+if [[ "root" != `whoami` ]]; then
+    echo "Please execute using the sudo command."
+    exit 1
+fi
+
+if [[ ! -f "$DIR_DEST/saltout" ]]; then
+    echo "salt-out not installed."
+    exit 1
+fi
+
+rm $DIR_DEST/saltout
+
