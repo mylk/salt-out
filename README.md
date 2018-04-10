@@ -20,7 +20,7 @@ You will also clearly see the failed deployment command and the error thrown.
 Also, if your deployment prints out debugging messages with specific prefixes (`[DEBUG]`, `[WARNING]`),
 `salt-out` will let them be shown too.
 
-You can use `salt-out` either from your terminal or a CI job and the output can have colors, or not.
+You can use `salt-out` either in your terminal or in a CI job.
 
 ## Installation
 
@@ -86,6 +86,16 @@ In place of `[...]` you have to put the salt options you already use.
 The `--out=json` option will just turn salt's output to JSON, instead of YAML, making parsing it more easy.
 Also `--out-indent=-1` will print each server output to a single line and that helps us to parse JSON
 more easily.
+
+## Available options
+
+- `--no-colors`
+
+  Show no colors, suitable for environments that cannot display colors, like CI tools.
+
+- `--raw-dir`
+
+  Save raw input (the output of salt) to the given directory.
 
 ## Output example
 

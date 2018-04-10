@@ -5,6 +5,7 @@ from __future__ import print_function
 import argparse
 import json
 import sys
+import time
 
 
 class Colors:
@@ -18,6 +19,9 @@ class Colors:
 
 class MinionParser:
     NO_COLORS = False
+    RAW_DIR = None
+    RAW_FILE = None
+
     STATUS_OK = 'OK'
     STATUS_WARNING = 'WARNING'
     STATUS_FAIL = 'FAIL'
@@ -25,12 +29,19 @@ class MinionParser:
     def __init__(self):
         arg_parser = argparse.ArgumentParser()
         arg_parser.add_argument('--no-colors', action='store_true')
+        arg_parser.add_argument('-r', '--raw-dir', action='store', default=None)
         args = arg_parser.parse_args()
         self.NO_COLORS = args.no_colors
+        self.RAW_DIR = args.raw_dir
+
+        if self.RAW_DIR:
+            self.RAW_FILE = '{}/saltout_{}.out'.format(self.RAW_DIR, time.strftime('%Y%m%d%H%M%S'))
 
     def read_stdin(self):
         has_errors = False
         for line in sys.stdin:
+            self.save_raw(line, self.RAW_FILE)
+
             if self.is_json(line):
                 line_json = json.loads(line)
                 result = self.parse_response(line_json)
@@ -80,6 +91,15 @@ class MinionParser:
             'errors': errors
         }
 
+    @staticmethod
+    def save_raw(data, path):
+        if path is None:
+            return
+
+        raw_file = open(path, 'a+')
+        raw_file.write(data)
+        raw_file.close()
+
     def print_result(self, result):
         status = self.STATUS_FAIL
         if result['success']:
@@ -121,4 +141,7 @@ class MinionParser:
 
 if __name__ == '__main__':
     parser = MinionParser()
+    if parser.RAW_FILE:
+        print('Saving raw input to {}\n'.format(parser.RAW_FILE))
+
     parser.read_stdin()
