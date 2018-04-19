@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 
 DIR_INSTALLED="/usr/local/bin"
 
@@ -13,4 +13,3 @@ if [[ ! -f "${DIR_INSTALLED}/saltoutw" ]]; then
 fi
 
 rm ${DIR_INSTALLED}/saltoutw
-

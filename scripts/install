@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/bash
 
 DIR_SRC="../src"
 DIR_DEST="/usr/local/bin"
@@ -11,4 +11,3 @@ fi
 cd "$(dirname "$0")"
 
 cp $DIR_SRC/saltout.py $DIR_DEST/saltout
-
