@@ -57,6 +57,7 @@ class MinionParser:
 
     @staticmethod
     def parse_response(response):
+        empty_response = False
         success = True
         duration = 0
         errors = []
@@ -68,21 +69,35 @@ class MinionParser:
             if isinstance(value, dict):
                 host = key
                 commands = value
+                empty_response = (len(value) == 0)
                 break
 
-        for name, details in commands.items():
-            if not isinstance(details, dict):
-                continue
-            duration += details['duration']
-            if not details['result']:
-                success = False
-                errors.append({
-                    'command': details['name'],
-                    'message': details['changes']['stderr']
-                })
-                # following commands will always fail,
-                # with "prerequisite failed"
-                break
+        if empty_response:
+            success = False
+            errors.append({
+                'command': "NO RESPONSE FROM {}".format(host),
+                'message': ''
+            })
+
+        else:
+            for command, details in commands.items():
+                if not isinstance(details, dict):
+                    continue
+
+                if not details['result']:
+                    success = False
+
+                    name = details['name'] if 'name' in details else command
+                    message = details['changes']['stderr'] if 'stderr' in details['changes'] else details['comment']
+
+                    errors.append({
+                        'command': name,
+                        'message': message
+                    })
+                    # following commands will always fail,
+                    # with "prerequisite failed"
+                    break
+                duration += details['duration'] if details['duration'] else 0
 
         return {
             'host': host,
