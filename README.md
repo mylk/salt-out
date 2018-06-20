@@ -110,3 +110,13 @@ Job for nginx.service failed. See 'systemctl status nginx.service' and 'journalc
 
 [  OK  ] server4 (1.1 min)
 ```
+
+## Run it with fixtures
+
+There are a few fixtures included in the project, inside the directory `test/fixtures`.
+Of course you can use them to run `salt-out` against them using the deployment simulator,
+which just echos the content of the fixtures with a short sleep between them.
+
+```
+./scripts/deploy_simulator.py | src/saltout.py
+```
