@@ -57,8 +57,8 @@ class MinionParser:
 
     @staticmethod
     def parse_response(response):
-        empty_response = False
-        salt_exception = False
+        commands_not_found = True
+        commands_empty = False
         success = True
         duration = 0
         errors = []
@@ -70,23 +70,24 @@ class MinionParser:
             host = key
             commands = value
 
-            if not isinstance(value, dict):
-                salt_exception = True
+            if isinstance(commands, dict):
+                commands_not_found = False
+                commands_empty = (len(commands) == 0)
                 break
 
-            if isinstance(value, dict):
-                empty_response = (len(value) == 0)
-                break
-
-        if empty_response or salt_exception:
+        if commands_empty:
             success = False
-
-            message = commands if not isinstance(commands, dict) else "EMPTY RESPONSE"
             errors.append({
-                'command': "",
-                'message': '{}'.format(message)
+                'command': '',
+                'message': 'Commands are empty'
             })
-
+        elif commands_not_found:
+            host = 'N/A'
+            success = False
+            errors.append({
+                'command': response,
+                'message': 'Commands not found'
+            })
         else:
             for command, details in commands.items():
                 if not isinstance(details, dict):
